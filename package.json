@@ -23,7 +23,13 @@
           "description": "Path to directory containing rspit.rs"
         }
       }
-    }
+    },
+    "commands": [
+      {
+        "command": "rspit.open",
+        "title": "Open rspit.rs"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

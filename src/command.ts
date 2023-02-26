@@ -1,3 +1,4 @@
+import path = require("path");
 import * as vscode from "vscode";
 
 export function createRunPkgCommandDisposable(): vscode.Disposable {
@@ -37,4 +38,16 @@ export function createRunPkgCommandDisposable(): vscode.Disposable {
   };
 
   return vscode.commands.registerCommand(command, callback);
+}
+
+export function createOpenCommandDisposable(): vscode.Disposable {
+  return vscode.commands.registerCommand("rspit.open", () => {
+    const dirPath = vscode.workspace
+      .getConfiguration("rspit")
+      .get("filePath") as string;
+    const filePath = path.join(dirPath, "rspit.rs");
+    const fileUri = vscode.Uri.file(filePath);
+
+    vscode.commands.executeCommand("vscode.open", fileUri);
+  });
 }
