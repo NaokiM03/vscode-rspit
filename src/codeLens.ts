@@ -7,75 +7,102 @@ type Line = {
   number: number;
 };
 
-type RunPkgArg = {
-  filePath: string;
-  pkg: string;
+const toLine = (s: string, i: number): Line => ({ content: s, number: i });
+
+const splitLinesByPkg = (
+  acc: Line[][],
+  x: Line,
+  i: number,
+  lines: Line[]
+): Line[][] => {
+  if (i === 0) {
+    acc.push([]);
+    acc[acc.length - 1].push(x);
+    return acc;
+  }
+
+  if (x.content.startsWith("//# ---")) {
+    acc.push([]);
+    return acc;
+  }
+
+  if (lines[i - 1].content.startsWith("//# ---") && x.content === "") {
+    return acc;
+  }
+
+  acc[acc.length - 1].push(x);
+  return acc;
 };
 
-export class CodeLensProvider implements vscode.CodeLensProvider {
+function extractPkgName(lines: Line[]): string {
+  const t: string = lines
+    .filter((line) => line.content.startsWith("//# "))
+    .map((line) => line.content.substring(4))
+    .join("\n");
+
+  let toml: TOML.JsonMap;
+  try {
+    toml = TOML.parse(t);
+  } catch (e) {
+    throw e;
+  }
+
+  const pkgField = toml.package as TOML.JsonMap;
+  return pkgField.name as string;
+}
+
+function findCodeLensRange(lines: Line[]): vscode.Range {
+  const targetLine = lines.find(
+    (line) => line.content.match(/^fn main\(\)+\s/) !== null
+  ) as Line;
+
+  return new vscode.Range(
+    new vscode.Position(targetLine.number, 0),
+    new vscode.Position(targetLine.number, targetLine.content.length)
+  );
+}
+
+function createCommand(fileName: string, pkgName: string): vscode.Command {
+  return {
+    title: "▶ Run",
+    command: "rspit.runPkg",
+    tooltip: `Run ${pkgName} package`,
+    arguments: [
+      {
+        filePath: fileName,
+        pkg: pkgName,
+      },
+    ],
+  };
+}
+
+class CodeLensProvider implements vscode.CodeLensProvider {
   constructor() {}
 
   public provideCodeLenses(
     document: vscode.TextDocument,
     _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.CodeLens[]> {
-    return document
-      .getText()
+    const snippets: string = document.getText();
+    const filePath: string = document.fileName;
+
+    return snippets
       .split("\n")
-      .map((s: string, i: number) => ({ content: s, number: i }))
-      .reduce((acc: Line[][], v: Line, i, lines: Line[]) => {
-        if (i === 0) {
-          acc.push([v]);
-          return acc;
-        }
-
-        if (v.content.startsWith("//# ---")) {
-          acc.push([]);
-          return acc;
-        }
-
-        if (lines[i - 1].content.startsWith("//# ---") && v.content === "") {
-          return acc;
-        }
-
-        acc[acc.length - 1].push(v);
-        return acc;
-      }, [])
+      .map(toLine)
+      .reduce(splitLinesByPkg, [])
       .map((lines: Line[]) => {
-        let toml: TOML.JsonMap;
-        try {
-          const t: string = lines
-            .filter((line) => line.content.startsWith("//# "))
-            .map((line) => line.content.substring(4))
-            .join("\n");
-          toml = TOML.parse(t);
-        } catch (e) {
-          throw e;
-        }
+        const pkgName = extractPkgName(lines);
+        const range = findCodeLensRange(lines);
+        const command = createCommand(filePath, pkgName);
 
-        const pkgField = toml.package as TOML.JsonMap;
-        const pkgName = pkgField.name as string;
-
-        const targetLine = lines.find(
-          (line) => line.content.match(/^fn main\(\)+\s/) !== null
-        ) as Line;
-
-        const range = new vscode.Range(
-          new vscode.Position(targetLine.number, 0),
-          new vscode.Position(targetLine.number, targetLine.content.length)
-        );
-
-        const arg: RunPkgArg = {
-          filePath: document.fileName,
-          pkg: pkgName,
-        };
-
-        return new vscode.CodeLens(range, {
-          title: "▶ Run",
-          command: "rspit.runPkg",
-          tooltip: `Run ${pkgName} package`,
-          arguments: [arg],
-        });
+        return new vscode.CodeLens(range, command);
       });
   }
+}
+
+export function createCodeLensProviderDisposable(): vscode.Disposable {
+  return vscode.languages.registerCodeLensProvider(
+    { language: "rust" },
+    new CodeLensProvider()
+  );
 }

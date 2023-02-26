@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { CodeLensProvider } from "./codeLens";
+import { createCodeLensProviderDisposable } from "./codeLens";
 
 type RunPkgArg = {
   filePath: string;
@@ -34,11 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  const codeLensProvider = new CodeLensProvider();
-  const codeLensProviderDisposable = vscode.languages.registerCodeLensProvider(
-    { language: "rust" },
-    codeLensProvider
-  );
+  const codeLensProviderDisposable = createCodeLensProviderDisposable();
 
   context.subscriptions.push(runPkgDisposable);
   context.subscriptions.push(codeLensProviderDisposable);
