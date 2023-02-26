@@ -1,5 +1,8 @@
-import path = require("path");
+import * as path from "path";
+
 import * as vscode from "vscode";
+
+import * as child_process from "child_process";
 
 export function createRunPkgCommandDisposable(): vscode.Disposable {
   function createRunPkgTask(filePath: string, pkg: string) {
@@ -49,5 +52,22 @@ export function createOpenCommandDisposable(): vscode.Disposable {
     const fileUri = vscode.Uri.file(filePath);
 
     vscode.commands.executeCommand("vscode.open", fileUri);
+  });
+}
+
+export function createAddPkgCommandDisposable(): vscode.Disposable {
+  return vscode.commands.registerCommand("rspit.packages.add", () => {
+    const dirPath = vscode.workspace
+      .getConfiguration("rspit")
+      .get("filePath") as string;
+    const filePath = path.join(dirPath, "rspit.rs");
+    child_process.exec(`pit add ${filePath}`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
+    });
   });
 }

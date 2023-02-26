@@ -27,7 +27,14 @@
     "commands": [
       {
         "command": "rspit.open",
-        "title": "Open rspit.rs"
+        "title": "Open rspit.rs",
+        "category": "RSPIT"
+      },
+      {
+        "command": "rspit.packages.add",
+        "title": "Add new package",
+        "category": "RSPIT",
+        "icon": "$(add)"
       }
     ],
     "viewsContainers": {
@@ -44,6 +51,15 @@
         {
           "id": "rspitPackages",
           "name": "PACKAGES"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "rspit.packages.add",
+          "when": "view == rspitPackages",
+          "group": "navigation"
         }
       ]
     }
