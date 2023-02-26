@@ -13,22 +13,7 @@
     "onLanguage:rust"
   ],
   "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "rspit.runPkg",
-        "title": "RSPIT: Run this package"
-      }
-    ],
-    "menus": {
-      "commandPalette": [
-        {
-          "command": "rspit.runPkg",
-          "when": "false"
-        }
-      ]
-    }
-  },
+  "contributes": {},
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
