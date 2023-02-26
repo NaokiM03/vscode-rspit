@@ -1,34 +1,40 @@
 import * as vscode from "vscode";
 
-type RunPkgArg = {
-  filePath: string;
-  pkg: string;
-};
-
 export function createRunPkgCommandDisposable(): vscode.Disposable {
-  return vscode.commands.registerCommand(
-    "rspit.runPkg",
-    async (arg: RunPkgArg) => {
-      // Save package before run.
-      await vscode.commands.executeCommand("workbench.action.files.save");
-      // Clear terminal before run.
-      await vscode.commands.executeCommand("workbench.action.terminal.clear");
+  function createRunPkgTask(filePath: string, pkg: string) {
+    const taskDefinition: vscode.TaskDefinition = { type: "rspit" };
+    const scope: vscode.TaskScope.Workspace = vscode.TaskScope.Workspace;
+    const name: string = "rspit run";
+    const source: string = "rspit";
+    const execution = new vscode.ShellExecution(
+      `pit run ${filePath} --package ${pkg}`
+    );
+    const problemMatchers = undefined;
 
-      const task = new vscode.Task(
-        { type: "rspit" },
-        vscode.TaskScope.Workspace,
-        "rspit run",
-        "rspit",
-        new vscode.ShellExecution(
-          `pit run ${arg.filePath} --package ${arg.pkg}`
-        ),
-        []
-      );
-      try {
-        vscode.tasks.executeTask(task);
-      } catch (e) {
-        throw e;
-      }
+    return new vscode.Task(
+      taskDefinition,
+      scope,
+      name,
+      source,
+      execution,
+      problemMatchers
+    );
+  }
+
+  const command = "rspit.runPkg";
+  const callback = async (arg: { filePath: string; pkg: string }) => {
+    // Save package before run.
+    await vscode.commands.executeCommand("workbench.action.files.save");
+    // Clear terminal before run.
+    await vscode.commands.executeCommand("workbench.action.terminal.clear");
+
+    const task = createRunPkgTask(arg.filePath, arg.pkg);
+    try {
+      await vscode.tasks.executeTask(task);
+    } catch (e) {
+      throw e;
     }
-  );
+  };
+
+  return vscode.commands.registerCommand(command, callback);
 }
