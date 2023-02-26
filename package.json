@@ -29,7 +29,24 @@
         "command": "rspit.open",
         "title": "Open rspit.rs"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "rspit",
+          "title": "RSPIT",
+          "icon": "./media/rspit.svg"
+        }
+      ]
+    },
+    "views": {
+      "rspit": [
+        {
+          "id": "rspitPackages",
+          "name": "PACKAGES"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

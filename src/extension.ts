@@ -5,6 +5,7 @@ import {
   createOpenCommandDisposable,
   createRunPkgCommandDisposable,
 } from "./command";
+import { registerTrees } from "./tree";
 
 export function activate(context: vscode.ExtensionContext) {
   const runPkgCommandDisposable = createRunPkgCommandDisposable();
@@ -14,6 +15,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(runPkgCommandDisposable);
   context.subscriptions.push(openCommnandDisposable);
   context.subscriptions.push(codeLensProviderDisposable);
+
+  registerTrees();
 }
 
 export function deactivate() {}
