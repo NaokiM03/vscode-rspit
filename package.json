@@ -13,7 +13,18 @@
     "onLanguage:rust"
   ],
   "main": "./out/extension.js",
-  "contributes": {},
+  "contributes": {
+    "configuration": {
+      "title": "rspit",
+      "properties": {
+        "rspit.filePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to directory containing rspit.rs"
+        }
+      }
+    }
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
