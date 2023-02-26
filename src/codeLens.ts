@@ -102,7 +102,7 @@ class CodeLensProvider implements vscode.CodeLensProvider {
 
 export function createCodeLensProviderDisposable(): vscode.Disposable {
   return vscode.languages.registerCodeLensProvider(
-    { language: "rust" },
+    { language: "rust", pattern: "**/rspit.rs" },
     new CodeLensProvider()
   );
 }
