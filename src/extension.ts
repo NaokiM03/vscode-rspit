@@ -22,6 +22,14 @@ const initializeTreeViews = (globals: Globals): vscode.Disposable[] => {
     treeDataProvider: pkgTreeViewProvider,
   });
 
+  const refreshAtInterval = () => {
+    const pollingIntervalMs = 1000 * 60 * 3; // 3 minutes
+    setInterval(() => {
+      pkgTreeViewProvider.refresh();
+    }, pollingIntervalMs);
+  };
+  refreshAtInterval();
+
   return [
     pkgTreeView,
     globals.listenEvent(async (event) => {
