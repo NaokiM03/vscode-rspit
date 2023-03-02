@@ -6,7 +6,20 @@ import * as vscode from "vscode";
 import * as TOML from "@iarna/toml";
 
 class Pkg extends vscode.TreeItem {
-  iconPath = new vscode.ThemeIcon("package");
+  constructor(pkgName: string, range: vscode.Range) {
+    super(pkgName);
+
+    this.iconPath = new vscode.ThemeIcon("package");
+    this.command = {
+      title: "Open package",
+      command: "rspit.openPkg",
+      arguments: [
+        {
+          range: new vscode.Range(range.start, range.start),
+        },
+      ],
+    };
+  }
 }
 
 type Line = {
@@ -58,6 +71,17 @@ function extractPkgName(lines: Line[]): string {
   return pkgField.name as string;
 }
 
+function findCodeLensRange(lines: Line[]): vscode.Range {
+  const targetLine = lines.find(
+    (line) => line.content.match(/^fn main\(\)+\s/) !== null
+  ) as Line;
+
+  return new vscode.Range(
+    new vscode.Position(targetLine.number, 0),
+    new vscode.Position(targetLine.number, targetLine.content.length)
+  );
+}
+
 export class PkgTreeViewProvider implements vscode.TreeDataProvider<Pkg> {
   private readonly _onDidChangeTreeData = new vscode.EventEmitter<Pkg | void>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -91,7 +115,8 @@ export class PkgTreeViewProvider implements vscode.TreeDataProvider<Pkg> {
       .reduce(splitLinesByPkg, [])
       .map((lines: Line[]) => {
         const pkgName = extractPkgName(lines);
-        return new Pkg(pkgName);
+        const range = findCodeLensRange(lines);
+        return new Pkg(pkgName, range);
       });
   }
 }

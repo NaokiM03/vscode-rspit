@@ -4,6 +4,7 @@ import { CodeLensProvider } from "./codeLens";
 import {
   addPkgCommand,
   openCommand,
+  openPkgCommand,
   refreshPkgCommand,
   runPkgCommand,
 } from "./command";
@@ -14,6 +15,7 @@ const initializeCommands = (globals: Globals): vscode.Disposable[] => {
   return [
     vscode.commands.registerCommand("rspit.runPkg", runPkgCommand),
     vscode.commands.registerCommand("rspit.open", openCommand),
+    vscode.commands.registerCommand("rspit.openPkg", openPkgCommand),
     vscode.commands.registerCommand(
       "rspit.packages.add",
       addPkgCommand(globals)
