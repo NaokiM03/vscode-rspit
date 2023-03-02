@@ -76,7 +76,7 @@ function createCommand(fileName: string, pkgName: string): vscode.Command {
   };
 }
 
-class CodeLensProvider implements vscode.CodeLensProvider {
+export class CodeLensProvider implements vscode.CodeLensProvider {
   constructor() {}
 
   public provideCodeLenses(
@@ -98,11 +98,4 @@ class CodeLensProvider implements vscode.CodeLensProvider {
         return new vscode.CodeLens(range, command);
       });
   }
-}
-
-export function createCodeLensProviderDisposable(): vscode.Disposable {
-  return vscode.languages.registerCodeLensProvider(
-    { language: "rust", pattern: "**/rspit.rs" },
-    new CodeLensProvider()
-  );
 }

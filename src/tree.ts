@@ -58,7 +58,7 @@ function extractPkgName(lines: Line[]): string {
   return pkgField.name as string;
 }
 
-class PkgTreeProvider implements vscode.TreeDataProvider<Pkg> {
+export class PkgTreeViewProvider implements vscode.TreeDataProvider<Pkg> {
   getTreeItem(element: Pkg): vscode.TreeItem {
     return element;
   }
@@ -88,9 +88,4 @@ class PkgTreeProvider implements vscode.TreeDataProvider<Pkg> {
         return new Pkg(pkgName);
       });
   }
-}
-
-export function registerTrees() {
-  const provider = new PkgTreeProvider();
-  vscode.window.registerTreeDataProvider("rspitPackages", provider);
 }
