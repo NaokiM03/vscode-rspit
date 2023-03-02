@@ -1,7 +1,12 @@
 import * as vscode from "vscode";
 
 import { CodeLensProvider } from "./codeLens";
-import { addPkgCommand, openCommand, runPkgCommand } from "./command";
+import {
+  addPkgCommand,
+  openCommand,
+  refreshPkgCommand,
+  runPkgCommand,
+} from "./command";
 import { Globals, newGlobals } from "./globals";
 import { PkgTreeViewProvider } from "./tree";
 
@@ -12,6 +17,10 @@ const initializeCommands = (globals: Globals): vscode.Disposable[] => {
     vscode.commands.registerCommand(
       "rspit.packages.add",
       addPkgCommand(globals)
+    ),
+    vscode.commands.registerCommand(
+      "rspit.packages.refresh",
+      refreshPkgCommand(globals)
     ),
   ];
 };

@@ -61,3 +61,9 @@ export const addPkgCommand = (globals: Globals) => {
     globals.dispatchEvent("refresh");
   };
 };
+
+export const refreshPkgCommand = (globals: Globals) => {
+  return () => {
+    globals.dispatchEvent("refresh");
+  };
+};

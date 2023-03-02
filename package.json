@@ -33,8 +33,14 @@
       {
         "command": "rspit.packages.add",
         "title": "Add new package",
-        "category": "RSPIT",
+        "category": "RSPIT PACKAGES",
         "icon": "$(add)"
+      },
+      {
+        "command": "rspit.packages.refresh",
+        "title": "Refresh",
+        "category": "RSPIT PACKAGES",
+        "icon": "$(refresh)"
       }
     ],
     "viewsContainers": {
@@ -59,7 +65,12 @@
         {
           "command": "rspit.packages.add",
           "when": "view == rspitPackages",
-          "group": "navigation"
+          "group": "navigation@1"
+        },
+        {
+          "command": "rspit.packages.refresh",
+          "when": "view == rspitPackages",
+          "group": "navigation@2"
         }
       ]
     }
