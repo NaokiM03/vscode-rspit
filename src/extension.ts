@@ -2,29 +2,36 @@ import * as vscode from "vscode";
 
 import { CodeLensProvider } from "./codeLens";
 import { addPkgCommand, openCommand, runPkgCommand } from "./command";
+import { Globals, newGlobals } from "./globals";
 import { PkgTreeViewProvider } from "./tree";
 
-const initializeCommands = (
-  _context: vscode.ExtensionContext
-): vscode.Disposable[] => {
+const initializeCommands = (globals: Globals): vscode.Disposable[] => {
   return [
     vscode.commands.registerCommand("rspit.runPkg", runPkgCommand),
-
     vscode.commands.registerCommand("rspit.open", openCommand),
-
-    vscode.commands.registerCommand("rspit.packages.add", addPkgCommand),
+    vscode.commands.registerCommand(
+      "rspit.packages.add",
+      addPkgCommand(globals)
+    ),
   ];
 };
 
-const initializeTreeViews = (
-  _context: vscode.ExtensionContext
-): vscode.Disposable[] => {
+const initializeTreeViews = (globals: Globals): vscode.Disposable[] => {
   const pkgTreeViewProvider = new PkgTreeViewProvider();
   const pkgTreeView = vscode.window.createTreeView("rspitPackages", {
     treeDataProvider: pkgTreeViewProvider,
   });
 
-  return [pkgTreeView];
+  return [
+    pkgTreeView,
+    globals.listenEvent(async (event) => {
+      switch (event) {
+        case "refresh":
+          pkgTreeViewProvider.refresh();
+          break;
+      }
+    }),
+  ];
 };
 
 const initializeCodeLens = (): vscode.Disposable => {
@@ -35,9 +42,10 @@ const initializeCodeLens = (): vscode.Disposable => {
 };
 
 export function activate(context: vscode.ExtensionContext) {
+  const globals: Globals = newGlobals(context);
   context.subscriptions.push(
-    ...initializeCommands(context),
-    ...initializeTreeViews(context),
+    ...initializeCommands(globals),
+    ...initializeTreeViews(globals),
     initializeCodeLens()
   );
 }

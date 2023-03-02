@@ -4,6 +4,8 @@ import * as vscode from "vscode";
 
 import * as child_process from "child_process";
 
+import { Globals } from "./globals";
+
 const createRunPkgTask = (filePath: string, pkg: string): vscode.Task => {
   const taskDefinition: vscode.TaskDefinition = { type: "rspit" };
   const scope: vscode.TaskScope.Workspace = vscode.TaskScope.Workspace;
@@ -48,17 +50,14 @@ export const openCommand = () => {
   vscode.commands.executeCommand("vscode.open", fileUri);
 };
 
-export const addPkgCommand = () => {
-  const dirPath = vscode.workspace
-    .getConfiguration("rspit")
-    .get("filePath") as string;
-  const filePath = path.join(dirPath, "rspit.rs");
-  child_process.exec(`pit add ${filePath}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`exec error: ${error}`);
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-    console.error(`stderr: ${stderr}`);
-  });
+export const addPkgCommand = (globals: Globals) => {
+  return () => {
+    const dirPath = vscode.workspace
+      .getConfiguration("rspit")
+      .get("filePath") as string;
+    const filePath = path.join(dirPath, "rspit.rs");
+    child_process.execSync(`pit add ${filePath}`);
+
+    globals.dispatchEvent("refresh");
+  };
 };
