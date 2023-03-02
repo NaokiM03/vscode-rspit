@@ -91,7 +91,6 @@ export class PkgTreeViewProvider implements vscode.TreeDataProvider<Pkg> {
       .reduce(splitLinesByPkg, [])
       .map((lines: Line[]) => {
         const pkgName = extractPkgName(lines);
-        console.log(pkgName);
         return new Pkg(pkgName);
       });
   }
