@@ -6,13 +6,13 @@ import * as child_process from "child_process";
 
 import { Globals } from "./globals";
 
-const createRunPkgTask = (filePath: string, pkg: string): vscode.Task => {
+const createRunPkgTask = (filePath: string, pkgName: string): vscode.Task => {
   const taskDefinition: vscode.TaskDefinition = { type: "rspit" };
   const scope: vscode.TaskScope.Workspace = vscode.TaskScope.Workspace;
   const name: string = "rspit run";
   const source: string = "rspit";
   const execution = new vscode.ShellExecution(
-    `pit run ${filePath} --package ${pkg}`
+    `pit run ${filePath} --package ${pkgName}`
   );
   const problemMatchers = undefined;
 
@@ -26,13 +26,16 @@ const createRunPkgTask = (filePath: string, pkg: string): vscode.Task => {
   );
 };
 
-export const runPkgCommand = async (arg: { filePath: string; pkg: string }) => {
+export const runPkgCommand = async (arg: {
+  filePath: string;
+  pkgName: string;
+}) => {
   // Save package before run.
   await vscode.commands.executeCommand("workbench.action.files.save");
   // Clear terminal before run.
   await vscode.commands.executeCommand("workbench.action.terminal.clear");
 
-  const task = createRunPkgTask(arg.filePath, arg.pkg);
+  const task = createRunPkgTask(arg.filePath, arg.pkgName);
   try {
     await vscode.tasks.executeTask(task);
   } catch (e) {

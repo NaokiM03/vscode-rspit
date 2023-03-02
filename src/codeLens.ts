@@ -2,20 +2,6 @@ import * as vscode from "vscode";
 
 import { Snippets } from "./snippet";
 
-function createCommand(fileName: string, pkgName: string): vscode.Command {
-  return {
-    title: "▶ Run",
-    command: "rspit.runPkg",
-    tooltip: `Run ${pkgName} package`,
-    arguments: [
-      {
-        filePath: fileName,
-        pkg: pkgName,
-      },
-    ],
-  };
-}
-
 export class CodeLensProvider implements vscode.CodeLensProvider {
   constructor() {}
 
@@ -27,9 +13,21 @@ export class CodeLensProvider implements vscode.CodeLensProvider {
     const filePath: string = document.fileName;
 
     return new Snippets(fileContent).map((snippet) => {
-      const command = createCommand(filePath, snippet.pkgName);
+      const pkgName = snippet.pkgName;
+      const range = snippet.codeLensRange;
+      const command = {
+        title: "▶ Run",
+        command: "rspit.runPkg",
+        tooltip: `Run ${pkgName} package`,
+        arguments: [
+          {
+            filePath,
+            pkgName: pkgName,
+          },
+        ],
+      };
 
-      return new vscode.CodeLens(snippet.codeLensRange, command);
+      return new vscode.CodeLens(range, command);
     });
   }
 }
