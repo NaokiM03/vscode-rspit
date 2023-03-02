@@ -30,6 +30,12 @@ const initializeTreeViews = (globals: Globals): vscode.Disposable[] => {
   };
   refreshAtInterval();
 
+  pkgTreeView.onDidChangeVisibility((event) => {
+    if (event.visible) {
+      pkgTreeViewProvider.refresh();
+    }
+  });
+
   return [
     pkgTreeView,
     globals.listenEvent(async (event) => {
