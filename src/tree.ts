@@ -59,6 +59,13 @@ function extractPkgName(lines: Line[]): string {
 }
 
 export class PkgTreeViewProvider implements vscode.TreeDataProvider<Pkg> {
+  private readonly _onDidChangeTreeData = new vscode.EventEmitter<Pkg | void>();
+  readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
+
+  refresh(): void {
+    this._onDidChangeTreeData.fire();
+  }
+
   getTreeItem(element: Pkg): vscode.TreeItem {
     return element;
   }
