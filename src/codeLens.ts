@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { Snippets } from "./snippet";
+import { Package, Packages } from "./package";
 
 export class CodeLensProvider implements vscode.CodeLensProvider {
   constructor() {}
@@ -12,17 +12,17 @@ export class CodeLensProvider implements vscode.CodeLensProvider {
     const fileContent: string = document.getText();
     const filePath: string = document.fileName;
 
-    return new Snippets(fileContent).map((snippet) => {
-      const pkgName = snippet.pkgName;
-      const range = snippet.codeLensRange;
+    return new Packages(fileContent).map((x: Package) => {
+      const packageName = x.name;
+      const range = x.codeLensRange;
       const command = {
         title: "▶ Run",
-        command: "rspit.runPkg",
-        tooltip: `Run ${pkgName} package`,
+        command: "rspit.runPackage",
+        tooltip: `Run ${packageName} package`,
         arguments: [
           {
             filePath,
-            pkgName: pkgName,
+            packageName,
           },
         ],
       };

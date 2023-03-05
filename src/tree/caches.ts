@@ -4,11 +4,12 @@ import * as child_process from "child_process";
 
 import * as vscode from "vscode";
 
-class CachedPackage extends vscode.TreeItem {
+class CachedPackageTreeItem extends vscode.TreeItem {
   iconPath = new vscode.ThemeIcon("package");
 }
 
-class CacheFile extends vscode.TreeItem {
+// TODO: Naming
+class CacheFileTreeItem extends vscode.TreeItem {
   readonly name: string;
 
   constructor(fileName: string) {
@@ -20,7 +21,7 @@ class CacheFile extends vscode.TreeItem {
   getChildren() {
     const dirPath = vscode.workspace
       .getConfiguration("rspit")
-      .get("directoryPath") as string;
+      .get("dirPath") as string;
     const filePath = path.join(dirPath, this.name);
 
     return child_process
@@ -28,11 +29,11 @@ class CacheFile extends vscode.TreeItem {
       .toString()
       .split("\n")
       .filter((x) => x !== "")
-      .map((pkgName) => new CachedPackage(pkgName));
+      .map((packageName) => new CachedPackageTreeItem(packageName));
   }
 }
 
-export class CacheTreeViewProvider
+export class CachesTreeViewProvider
   implements vscode.TreeDataProvider<vscode.TreeItem>
 {
   private readonly _onDidChangeTreeData =
@@ -43,28 +44,32 @@ export class CacheTreeViewProvider
     this._onDidChangeTreeData.fire();
   }
 
-  getTreeItem(element: CacheFile): vscode.TreeItem {
+  getTreeItem(element: CacheFileTreeItem): vscode.TreeItem {
     return element;
   }
 
-  getChildren(element?: CacheFile): vscode.ProviderResult<vscode.TreeItem[]> {
+  getChildren(
+    element?: CacheFileTreeItem
+  ): vscode.ProviderResult<vscode.TreeItem[]> {
     if (element) {
       return element.getChildren();
     }
 
     const dirPath = vscode.workspace
       .getConfiguration("rspit")
-      .get("directoryPath") as string;
+      .get("dirPath") as string;
     const contents = fs.readdirSync(dirPath).map((content) => {
       const name = content;
       const contentPath = path.join(dirPath, content);
       const stats = fs.statSync(contentPath);
-      return { name, path: contentPath, stats };
+      return { name, stats };
     });
-    const files = contents.filter((content) => content.stats.isFile());
+    const fileNames = contents
+      .filter((content) => content.stats.isFile())
+      .map((content) => content.name);
 
-    return files.map((file) => {
-      return new CacheFile(file.name);
+    return fileNames.map((fileName) => {
+      return new CacheFileTreeItem(fileName);
     });
   }
 }
