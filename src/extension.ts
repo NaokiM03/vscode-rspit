@@ -89,7 +89,7 @@ const initializeTreeViews = (globals: Globals): vscode.Disposable[] => {
 
 const initializeCodeLens = (): vscode.Disposable => {
   return vscode.languages.registerCodeLensProvider(
-    { language: "rust", pattern: "**/rspit.rs" },
+    { language: "rust" },
     new CodeLensProvider()
   );
 };
