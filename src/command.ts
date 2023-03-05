@@ -1,18 +1,22 @@
 import * as path from "path";
+import * as fs from "fs";
+import * as child_process from "child_process";
 
 import * as vscode from "vscode";
 
-import * as child_process from "child_process";
-
 import { Globals } from "./globals";
+import { RspitFileTreeItem } from "./tree/packages";
 
-const createRunPkgTask = (filePath: string, pkgName: string): vscode.Task => {
+const createRunPackageTask = (
+  filePath: string,
+  packageName: string
+): vscode.Task => {
   const taskDefinition: vscode.TaskDefinition = { type: "rspit" };
   const scope: vscode.TaskScope.Workspace = vscode.TaskScope.Workspace;
   const name: string = "RSPIT RUN";
   const source: string = "rspit";
   const execution = new vscode.ShellExecution(
-    `pit run ${filePath} --package ${pkgName}`
+    `pit run ${filePath} --package ${packageName}`
   );
   const problemMatchers = undefined;
 
@@ -26,14 +30,14 @@ const createRunPkgTask = (filePath: string, pkgName: string): vscode.Task => {
   );
 };
 
-export const runPkgCommand = (globals: Globals) => {
-  return async (arg: { filePath: string; pkgName: string }) => {
+export const runPackageCommand = (globals: Globals) => {
+  return async (arg: { filePath: string; packageName: string }) => {
     // Save package before run.
     await vscode.commands.executeCommand("workbench.action.files.save");
     // Clear terminal before run.
     await vscode.commands.executeCommand("workbench.action.terminal.clear");
 
-    const task = createRunPkgTask(arg.filePath, arg.pkgName);
+    const task = createRunPackageTask(arg.filePath, arg.packageName);
     vscode.tasks.onDidEndTask((e) => {
       if (e.execution.task.name === task.name) {
         globals.dispatchEvent("refreshCache");
@@ -47,21 +51,72 @@ export const runPkgCommand = (globals: Globals) => {
   };
 };
 
-export const openCommand = () => {
+export const openCommand = async () => {
   const dirPath = vscode.workspace
     .getConfiguration("rspit")
-    .get("filePath") as string;
-  const filePath = path.join(dirPath, "rspit.rs");
+    .get("dirPath") as string;
+  const contents = fs.readdirSync(dirPath).map((content) => {
+    const name = content;
+    const contentPath = path.join(dirPath, content);
+    const stats = fs.statSync(contentPath);
+    return { name, stats };
+  });
+  const fileNames = contents
+    .filter((content) => content.stats.isFile())
+    .map((content) => content.name);
+
+  const fileName = await vscode.window.showQuickPick(fileNames);
+  if (!fileName) return;
+
+  const filePath = path.join(dirPath, fileName);
   const fileUri = vscode.Uri.file(filePath);
 
   vscode.commands.executeCommand("vscode.open", fileUri);
 };
 
-export const openPkgCommand = (arg: { range: vscode.Range }) => {
+export const newCommand = (globals: Globals) => {
+  return async () => {
+    const dirPath = vscode.workspace
+      .getConfiguration("rspit")
+      .get("dirPath") as string;
+    const contents = fs.readdirSync(dirPath).map((content) => {
+      const name = content;
+      const contentPath = path.join(dirPath, content);
+      const stats = fs.statSync(contentPath);
+      return { name, stats };
+    });
+    const fileNames = contents
+      .filter((content) => content.stats.isFile())
+      .map((content) => content.name);
+
+    const fileName = await vscode.window.showInputBox({
+      prompt: "Enter file name",
+      title: "Create new file",
+      validateInput: async (fileName) => {
+        if (fileNames.includes(fileName)) {
+          return `Error: Cannot create ${fileName} bacause another file exists with the same name`;
+        }
+
+        return null;
+      },
+    });
+    if (!fileName) return;
+
+    child_process.execSync(`pit init --out-dir ${dirPath} ${fileName}`);
+
+    globals.dispatchEvent("refreshPackage");
+    globals.dispatchEvent("refreshCache");
+  };
+};
+
+export const openPackageCommand = (arg: {
+  fileName: string;
+  range: vscode.Range;
+}) => {
   const dirPath = vscode.workspace
     .getConfiguration("rspit")
-    .get("filePath") as string;
-  const filePath = path.join(dirPath, "rspit.rs");
+    .get("dirPath") as string;
+  const filePath = path.join(dirPath, arg.fileName);
   const fileUri = vscode.Uri.file(filePath);
 
   const options: vscode.TextDocumentShowOptions = {
@@ -70,21 +125,21 @@ export const openPkgCommand = (arg: { range: vscode.Range }) => {
   vscode.window.showTextDocument(fileUri, options);
 };
 
-export const addPkgCommand = (globals: Globals) => {
-  return () => {
+export const addPackageCommand = (globals: Globals) => {
+  return (rspitFile: RspitFileTreeItem) => {
     const dirPath = vscode.workspace
       .getConfiguration("rspit")
-      .get("filePath") as string;
-    const filePath = path.join(dirPath, "rspit.rs");
+      .get("dirPath") as string;
+    const filePath = path.join(dirPath, rspitFile.name);
     child_process.execSync(`pit add ${filePath}`);
 
-    globals.dispatchEvent("refreshPkg");
+    globals.dispatchEvent("refreshPackage");
   };
 };
 
-export const refreshPkgCommand = (globals: Globals) => {
+export const refreshPackageCommand = (globals: Globals) => {
   return () => {
-    globals.dispatchEvent("refreshPkg");
+    globals.dispatchEvent("refreshPackage");
   };
 };
 

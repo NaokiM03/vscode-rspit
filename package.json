@@ -9,25 +9,28 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onLanguage:rust"
-  ],
+  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
       "title": "rspit",
       "properties": {
-        "rspit.filePath": {
+        "rspit.dirPath": {
           "type": "string",
           "default": "",
-          "description": "Path to directory containing rspit.rs"
+          "description": "Path to directory containing rspit files. On Windows, the drive letter must be lower case."
         }
       }
     },
     "commands": [
       {
         "command": "rspit.open",
-        "title": "Open rspit.rs",
+        "title": "Open",
+        "category": "RSPIT"
+      },
+      {
+        "command": "rspit.newFile",
+        "title": "New file",
         "category": "RSPIT"
       },
       {
@@ -73,19 +76,21 @@
     "menus": {
       "view/title": [
         {
-          "command": "rspit.packages.add",
-          "when": "view == rspitPackages",
-          "group": "navigation@1"
-        },
-        {
           "command": "rspit.packages.refresh",
           "when": "view == rspitPackages",
-          "group": "navigation@2"
+          "group": "navigation"
         },
         {
           "command": "rspit.caches.refresh",
           "when": "view == rspitCaches",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "rspit.packages.add",
+          "when": "view == rspitPackages && viewItem == file",
+          "group": "inline"
         }
       ]
     }

@@ -2,28 +2,33 @@ import * as vscode from "vscode";
 
 import { CodeLensProvider } from "./codeLens";
 import {
-  addPkgCommand,
+  addPackageCommand,
+  newCommand,
   openCommand,
-  openPkgCommand,
+  openPackageCommand,
   refreshCacheCommand,
-  refreshPkgCommand,
-  runPkgCommand,
+  refreshPackageCommand,
+  runPackageCommand,
 } from "./command";
 import { Globals, newGlobals } from "./globals";
-import { CacheTreeViewProvider, PkgTreeViewProvider } from "./tree";
+import { CachesTreeViewProvider, PackagesTreeViewProvider } from "./tree";
 
 const initializeCommands = (globals: Globals): vscode.Disposable[] => {
   return [
-    vscode.commands.registerCommand("rspit.runPkg", runPkgCommand(globals)),
+    vscode.commands.registerCommand(
+      "rspit.runPackage",
+      runPackageCommand(globals)
+    ),
     vscode.commands.registerCommand("rspit.open", openCommand),
-    vscode.commands.registerCommand("rspit.openPkg", openPkgCommand),
+    vscode.commands.registerCommand("rspit.newFile", newCommand(globals)),
+    vscode.commands.registerCommand("rspit.openPackage", openPackageCommand),
     vscode.commands.registerCommand(
       "rspit.packages.add",
-      addPkgCommand(globals)
+      addPackageCommand(globals)
     ),
     vscode.commands.registerCommand(
       "rspit.packages.refresh",
-      refreshPkgCommand(globals)
+      refreshPackageCommand(globals)
     ),
     vscode.commands.registerCommand(
       "rspit.caches.refresh",
@@ -33,47 +38,51 @@ const initializeCommands = (globals: Globals): vscode.Disposable[] => {
 };
 
 const initializeTreeViews = (globals: Globals): vscode.Disposable[] => {
-  const pkgTreeViewProvider = new PkgTreeViewProvider();
-  const pkgTreeView = vscode.window.createTreeView("rspitPackages", {
-    treeDataProvider: pkgTreeViewProvider,
+  // PACKAGES
+
+  const packagesTreeViewProvider = new PackagesTreeViewProvider();
+  const packagesTreeView = vscode.window.createTreeView("rspitPackages", {
+    treeDataProvider: packagesTreeViewProvider,
   });
 
   const refreshAtInterval = () => {
-    const pollingIntervalMs = 1000 * 60 * 3; // 3 minutes
+    const THREE_MINUTES: number = 1000 * 60 * 3;
     setInterval(() => {
-      pkgTreeViewProvider.refresh();
-    }, pollingIntervalMs);
+      packagesTreeViewProvider.refresh();
+    }, THREE_MINUTES);
   };
   refreshAtInterval();
 
-  pkgTreeView.onDidChangeVisibility((event) => {
+  packagesTreeView.onDidChangeVisibility((event) => {
     if (event.visible) {
-      pkgTreeViewProvider.refresh();
+      packagesTreeViewProvider.refresh();
     }
   });
 
-  const cacheTreeViewProvider = new CacheTreeViewProvider();
-  const cacheTreeView = vscode.window.createTreeView("rspitCaches", {
-    treeDataProvider: cacheTreeViewProvider,
+  // CACHES
+
+  const cachesTreeViewProvider = new CachesTreeViewProvider();
+  const cachesTreeView = vscode.window.createTreeView("rspitCaches", {
+    treeDataProvider: cachesTreeViewProvider,
   });
 
-  cacheTreeView.onDidChangeVisibility((event) => {
+  cachesTreeView.onDidChangeVisibility((event) => {
     if (event.visible) {
-      cacheTreeViewProvider.refresh();
+      cachesTreeViewProvider.refresh();
     }
   });
 
   return [
-    pkgTreeView,
-    cacheTreeView,
+    packagesTreeView,
+    cachesTreeView,
 
     globals.listenEvent(async (event) => {
       switch (event) {
-        case "refreshPkg":
-          pkgTreeViewProvider.refresh();
+        case "refreshPackage":
+          packagesTreeViewProvider.refresh();
           break;
         case "refreshCache":
-          cacheTreeViewProvider.refresh();
+          cachesTreeViewProvider.refresh();
           break;
       }
     }),
@@ -81,8 +90,12 @@ const initializeTreeViews = (globals: Globals): vscode.Disposable[] => {
 };
 
 const initializeCodeLens = (): vscode.Disposable => {
+  const dirPath = vscode.workspace
+    .getConfiguration("rspit")
+    .get("dirPath") as string;
+
   return vscode.languages.registerCodeLensProvider(
-    { language: "rust", pattern: "**/rspit.rs" },
+    { language: "rust", pattern: `${dirPath}/*.rs` },
     new CodeLensProvider()
   );
 };
