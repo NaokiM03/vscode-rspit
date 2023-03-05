@@ -27,7 +27,7 @@
     "commands": [
       {
         "command": "rspit.open",
-        "title": "Open rspit.rs",
+        "title": "Open",
         "category": "RSPIT"
       },
       {

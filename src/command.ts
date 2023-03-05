@@ -1,8 +1,8 @@
 import * as path from "path";
+import * as fs from "fs";
+import * as child_process from "child_process";
 
 import * as vscode from "vscode";
-
-import * as child_process from "child_process";
 
 import { Globals } from "./globals";
 import { RspitFileTreeItem } from "./tree/packages";
@@ -51,11 +51,24 @@ export const runPackageCommand = (globals: Globals) => {
   };
 };
 
-export const openCommand = () => {
+export const openCommand = async () => {
   const dirPath = vscode.workspace
     .getConfiguration("rspit")
     .get("dirPath") as string;
-  const filePath = path.join(dirPath, "rspit.rs");
+  const contents = fs.readdirSync(dirPath).map((content) => {
+    const name = content;
+    const contentPath = path.join(dirPath, content);
+    const stats = fs.statSync(contentPath);
+    return { name, stats };
+  });
+  const fileNames = contents
+    .filter((content) => content.stats.isFile())
+    .map((content) => content.name);
+
+  const fileName = await vscode.window.showQuickPick(fileNames);
+  if (!fileName) return;
+
+  const filePath = path.join(dirPath, fileName);
   const fileUri = vscode.Uri.file(filePath);
 
   vscode.commands.executeCommand("vscode.open", fileUri);
