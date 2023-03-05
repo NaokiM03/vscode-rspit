@@ -44,10 +44,10 @@ const initializeTreeViews = (globals: Globals): vscode.Disposable[] => {
   });
 
   const refreshAtInterval = () => {
-    const pollingIntervalMs = 1000 * 60 * 3; // 3 minutes
+    const THREE_MINUTES: number = 1000 * 60 * 3;
     setInterval(() => {
       packagesTreeViewProvider.refresh();
-    }, pollingIntervalMs);
+    }, THREE_MINUTES);
   };
   refreshAtInterval();
 

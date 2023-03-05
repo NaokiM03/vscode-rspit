@@ -43,9 +43,10 @@ export class Packages {
   };
 
   private extractPackageName = (lines: Line[]): string => {
+    const TOML_PREFIX: string = "//# ";
     const t: string = lines
-      .filter((line) => line.content.startsWith("//# "))
-      .map((line) => line.content.substring(4))
+      .filter((line) => line.content.startsWith(TOML_PREFIX))
+      .map((line) => line.content.substring(TOML_PREFIX.length))
       .join("\n");
 
     let toml: TOML.JsonMap;
