@@ -92,6 +92,12 @@
           "when": "view == rspitPackages && viewItem == file",
           "group": "inline"
         }
+      ],
+      "commandPalette": [
+        {
+          "command": "rspit.packages.add",
+          "when": "false"
+        }
       ]
     }
   },
