@@ -74,6 +74,41 @@ export const openCommand = async () => {
   vscode.commands.executeCommand("vscode.open", fileUri);
 };
 
+export const newCommand = (globals: Globals) => {
+  return async () => {
+    const dirPath = vscode.workspace
+      .getConfiguration("rspit")
+      .get("dirPath") as string;
+    const contents = fs.readdirSync(dirPath).map((content) => {
+      const name = content;
+      const contentPath = path.join(dirPath, content);
+      const stats = fs.statSync(contentPath);
+      return { name, stats };
+    });
+    const fileNames = contents
+      .filter((content) => content.stats.isFile())
+      .map((content) => content.name);
+
+    const fileName = await vscode.window.showInputBox({
+      prompt: "Enter file name",
+      title: "Create new file",
+      validateInput: async (fileName) => {
+        if (fileNames.includes(fileName)) {
+          return `Error: Cannot create ${fileName} bacause another file exists with the same name`;
+        }
+
+        return null;
+      },
+    });
+    if (!fileName) return;
+
+    child_process.execSync(`pit init --out-dir ${dirPath} ${fileName}`);
+
+    globals.dispatchEvent("refreshPackage");
+    globals.dispatchEvent("refreshCache");
+  };
+};
+
 export const openPackageCommand = (arg: {
   fileName: string;
   range: vscode.Range;

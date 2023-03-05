@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import { CodeLensProvider } from "./codeLens";
 import {
   addPackageCommand,
+  newCommand,
   openCommand,
   openPackageCommand,
   refreshCacheCommand,
@@ -19,6 +20,7 @@ const initializeCommands = (globals: Globals): vscode.Disposable[] => {
       runPackageCommand(globals)
     ),
     vscode.commands.registerCommand("rspit.open", openCommand),
+    vscode.commands.registerCommand("rspit.newFile", newCommand(globals)),
     vscode.commands.registerCommand("rspit.openPackage", openPackageCommand),
     vscode.commands.registerCommand(
       "rspit.packages.add",
