@@ -62,12 +62,14 @@ export class CachesTreeViewProvider
       const name = content;
       const contentPath = path.join(dirPath, content);
       const stats = fs.statSync(contentPath);
-      return { name, path: contentPath, stats };
+      return { name, stats };
     });
-    const files = contents.filter((content) => content.stats.isFile());
+    const fileNames = contents
+      .filter((content) => content.stats.isFile())
+      .map((content) => content.name);
 
-    return files.map((file) => {
-      return new CacheFileTreeItem(file.name);
+    return fileNames.map((fileName) => {
+      return new CacheFileTreeItem(fileName);
     });
   }
 }
