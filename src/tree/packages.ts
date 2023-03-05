@@ -3,16 +3,16 @@ import * as fs from "fs";
 
 import * as vscode from "vscode";
 
-import { Snippets } from "../snippet";
+import { Package, Packages } from "../package";
 
-class Pkg extends vscode.TreeItem {
-  constructor(fileName: string, pkgName: string, range: vscode.Range) {
-    super(pkgName);
+class PackageTreeItem extends vscode.TreeItem {
+  constructor(fileName: string, packageName: string, range: vscode.Range) {
+    super(packageName);
 
     this.iconPath = new vscode.ThemeIcon("package");
     this.command = {
       title: "Open package",
-      command: "rspit.openPkg",
+      command: "rspit.openPackage",
       arguments: [
         {
           fileName,
@@ -23,7 +23,7 @@ class Pkg extends vscode.TreeItem {
   }
 }
 
-export class RspitFile extends vscode.TreeItem {
+export class RspitFileTreeItem extends vscode.TreeItem {
   readonly name: string;
 
   constructor(fileName: string) {
@@ -40,13 +40,13 @@ export class RspitFile extends vscode.TreeItem {
     const filePath = path.join(dirPath, this.name);
     const fileContent = fs.readFileSync(filePath, "utf8");
 
-    return new Snippets(fileContent).map((snippet) => {
-      return new Pkg(this.name, snippet.pkgName, snippet.codeLensRange);
+    return new Packages(fileContent).map((x: Package) => {
+      return new PackageTreeItem(this.name, x.name, x.codeLensRange);
     });
   }
 }
 
-export class PkgTreeViewProvider
+export class PackagesTreeViewProvider
   implements vscode.TreeDataProvider<vscode.TreeItem>
 {
   private readonly _onDidChangeTreeData =
@@ -57,11 +57,13 @@ export class PkgTreeViewProvider
     this._onDidChangeTreeData.fire();
   }
 
-  getTreeItem(element: RspitFile): vscode.TreeItem {
+  getTreeItem(element: RspitFileTreeItem): vscode.TreeItem {
     return element;
   }
 
-  getChildren(element?: RspitFile): vscode.ProviderResult<RspitFile[]> {
+  getChildren(
+    element?: RspitFileTreeItem
+  ): vscode.ProviderResult<RspitFileTreeItem[]> {
     if (element) {
       return element.getChildren();
     }
@@ -79,7 +81,7 @@ export class PkgTreeViewProvider
 
     return files.map((file) => {
       const fileName = file.name;
-      return new RspitFile(fileName);
+      return new RspitFileTreeItem(fileName);
     });
   }
 }

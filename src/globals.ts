@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-type Event = "refreshPkg" | "refreshCache";
+type Event = "refreshPackage" | "refreshCache";
 type EventCallback = (event: Event) => void;
 
 export interface Globals {

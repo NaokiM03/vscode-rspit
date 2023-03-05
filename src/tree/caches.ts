@@ -4,11 +4,12 @@ import * as child_process from "child_process";
 
 import * as vscode from "vscode";
 
-class CachedPackage extends vscode.TreeItem {
+class CachedPackageTreeItem extends vscode.TreeItem {
   iconPath = new vscode.ThemeIcon("package");
 }
 
-class CacheFile extends vscode.TreeItem {
+// TODO: Naming
+class CacheFileTreeItem extends vscode.TreeItem {
   readonly name: string;
 
   constructor(fileName: string) {
@@ -28,11 +29,11 @@ class CacheFile extends vscode.TreeItem {
       .toString()
       .split("\n")
       .filter((x) => x !== "")
-      .map((pkgName) => new CachedPackage(pkgName));
+      .map((packageName) => new CachedPackageTreeItem(packageName));
   }
 }
 
-export class CacheTreeViewProvider
+export class CachesTreeViewProvider
   implements vscode.TreeDataProvider<vscode.TreeItem>
 {
   private readonly _onDidChangeTreeData =
@@ -43,11 +44,13 @@ export class CacheTreeViewProvider
     this._onDidChangeTreeData.fire();
   }
 
-  getTreeItem(element: CacheFile): vscode.TreeItem {
+  getTreeItem(element: CacheFileTreeItem): vscode.TreeItem {
     return element;
   }
 
-  getChildren(element?: CacheFile): vscode.ProviderResult<vscode.TreeItem[]> {
+  getChildren(
+    element?: CacheFileTreeItem
+  ): vscode.ProviderResult<vscode.TreeItem[]> {
     if (element) {
       return element.getChildren();
     }
@@ -64,7 +67,7 @@ export class CacheTreeViewProvider
     const files = contents.filter((content) => content.stats.isFile());
 
     return files.map((file) => {
-      return new CacheFile(file.name);
+      return new CacheFileTreeItem(file.name);
     });
   }
 }

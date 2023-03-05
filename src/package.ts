@@ -7,17 +7,17 @@ type Line = {
   number: number;
 };
 
-type Snippet = {
-  pkgName: string;
+export type Package = {
+  name: string;
   codeLensRange: vscode.Range;
 };
 
-export class Snippets {
-  inner: Snippet[];
+export class Packages {
+  inner: Package[];
 
   private toLine = (s: string, i: number): Line => ({ content: s, number: i });
 
-  private splitLinesByPkg = (
+  private splitLinesByPackage = (
     acc: Line[][],
     x: Line,
     i: number,
@@ -42,7 +42,7 @@ export class Snippets {
     return acc;
   };
 
-  private extractPkgName = (lines: Line[]): string => {
+  private extractPackageName = (lines: Line[]): string => {
     const t: string = lines
       .filter((line) => line.content.startsWith("//# "))
       .map((line) => line.content.substring(4))
@@ -55,8 +55,8 @@ export class Snippets {
       throw e;
     }
 
-    const pkgField = toml.package as TOML.JsonMap;
-    return pkgField.name as string;
+    const packageField = toml.package as TOML.JsonMap;
+    return packageField.name as string;
   };
 
   private findCodeLensRange = (lines: Line[]): vscode.Range => {
@@ -74,16 +74,16 @@ export class Snippets {
     this.inner = src
       .split("\n")
       .map(this.toLine)
-      .reduce(this.splitLinesByPkg, [])
+      .reduce(this.splitLinesByPackage, [])
       .map((lines) => {
-        const pkgName = this.extractPkgName(lines);
-        const range = this.findCodeLensRange(lines);
+        const name = this.extractPackageName(lines);
+        const codeLensRange = this.findCodeLensRange(lines);
 
-        return { pkgName: pkgName, codeLensRange: range };
+        return { name, codeLensRange };
       });
   }
 
-  map(callback: (v: Snippet) => any): any[] {
+  map(callback: (v: Package) => any): any[] {
     return this.inner.map(callback);
   }
 }
