@@ -26,8 +26,8 @@ class Pkg extends vscode.TreeItem {
 export class RspitFile extends vscode.TreeItem {
   readonly name: string;
 
-  constructor(fileName: string, fileUri: vscode.Uri) {
-    super(fileUri, vscode.TreeItemCollapsibleState.Expanded);
+  constructor(fileName: string) {
+    super(fileName, vscode.TreeItemCollapsibleState.Expanded);
 
     this.name = fileName;
     this.contextValue = "file";
@@ -79,8 +79,7 @@ export class PkgTreeViewProvider
 
     return files.map((file) => {
       const fileName = file.name;
-      const fileUri = vscode.Uri.file(file.path);
-      return new RspitFile(fileName, fileUri);
+      return new RspitFile(fileName);
     });
   }
 }
