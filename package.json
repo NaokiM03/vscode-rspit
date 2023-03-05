@@ -9,9 +9,7 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onLanguage:rust"
-  ],
+  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
@@ -20,7 +18,7 @@
         "rspit.dirPath": {
           "type": "string",
           "default": "",
-          "description": "Path to directory containing rspit files"
+          "description": "Path to directory containing rspit files. On Windows, the drive letter must be lower case."
         }
       }
     },

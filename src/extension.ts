@@ -90,8 +90,12 @@ const initializeTreeViews = (globals: Globals): vscode.Disposable[] => {
 };
 
 const initializeCodeLens = (): vscode.Disposable => {
+  const dirPath = vscode.workspace
+    .getConfiguration("rspit")
+    .get("dirPath") as string;
+
   return vscode.languages.registerCodeLensProvider(
-    { language: "rust" },
+    { language: "rust", pattern: `${dirPath}/*.rs` },
     new CodeLensProvider()
   );
 };
