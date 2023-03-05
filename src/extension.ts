@@ -100,24 +100,12 @@ const initializeCodeLens = (): vscode.Disposable => {
   );
 };
 
-const initializeLanguageConfiguration = (): vscode.Disposable => {
-  return vscode.languages.setLanguageConfiguration("rust", {
-    onEnterRules: [
-      {
-        beforeText: /^\s*\/{2}\#.*$/,
-        action: { indentAction: vscode.IndentAction.None, appendText: "//# " },
-      },
-    ],
-  });
-};
-
 export function activate(context: vscode.ExtensionContext) {
   const globals: Globals = newGlobals(context);
   context.subscriptions.push(
     ...initializeCommands(globals),
     ...initializeTreeViews(globals),
-    initializeCodeLens(),
-    initializeLanguageConfiguration()
+    initializeCodeLens()
   );
 }
 
