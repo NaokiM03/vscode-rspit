@@ -35,14 +35,6 @@ export class PkgTreeViewProvider implements vscode.TreeDataProvider<Pkg> {
   }
 
   getChildren(_element?: Pkg): vscode.ProviderResult<Pkg[]> {
-    const textEditor = vscode.window.activeTextEditor;
-    if (textEditor === undefined) {
-      return Promise.resolve([]);
-    }
-    if (!textEditor.document.fileName.endsWith("rspit.rs")) {
-      return Promise.resolve([]);
-    }
-
     const dirPath = vscode.workspace
       .getConfiguration("rspit")
       .get("filePath") as string;
