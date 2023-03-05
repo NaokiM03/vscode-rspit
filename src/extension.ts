@@ -5,15 +5,16 @@ import {
   addPkgCommand,
   openCommand,
   openPkgCommand,
+  refreshCacheCommand,
   refreshPkgCommand,
   runPkgCommand,
 } from "./command";
 import { Globals, newGlobals } from "./globals";
-import { PkgTreeViewProvider } from "./tree";
+import { CacheTreeViewProvider, PkgTreeViewProvider } from "./tree";
 
 const initializeCommands = (globals: Globals): vscode.Disposable[] => {
   return [
-    vscode.commands.registerCommand("rspit.runPkg", runPkgCommand),
+    vscode.commands.registerCommand("rspit.runPkg", runPkgCommand(globals)),
     vscode.commands.registerCommand("rspit.open", openCommand),
     vscode.commands.registerCommand("rspit.openPkg", openPkgCommand),
     vscode.commands.registerCommand(
@@ -23,6 +24,10 @@ const initializeCommands = (globals: Globals): vscode.Disposable[] => {
     vscode.commands.registerCommand(
       "rspit.packages.refresh",
       refreshPkgCommand(globals)
+    ),
+    vscode.commands.registerCommand(
+      "rspit.caches.refresh",
+      refreshCacheCommand(globals)
     ),
   ];
 };
@@ -47,12 +52,28 @@ const initializeTreeViews = (globals: Globals): vscode.Disposable[] => {
     }
   });
 
+  const cacheTreeViewProvider = new CacheTreeViewProvider();
+  const cacheTreeView = vscode.window.createTreeView("rspitCaches", {
+    treeDataProvider: cacheTreeViewProvider,
+  });
+
+  cacheTreeView.onDidChangeVisibility((event) => {
+    if (event.visible) {
+      cacheTreeViewProvider.refresh();
+    }
+  });
+
   return [
     pkgTreeView,
+    cacheTreeView,
+
     globals.listenEvent(async (event) => {
       switch (event) {
-        case "refresh":
+        case "refreshPkg":
           pkgTreeViewProvider.refresh();
+          break;
+        case "refreshCache":
+          cacheTreeViewProvider.refresh();
           break;
       }
     }),
