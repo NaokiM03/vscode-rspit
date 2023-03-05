@@ -17,12 +17,7 @@
     "configuration": {
       "title": "rspit",
       "properties": {
-        "rspit.filePath": {
-          "type": "string",
-          "default": "",
-          "description": "Path to directory containing rspit.rs"
-        },
-        "rspit.directoryPath": {
+        "rspit.dirPath": {
           "type": "string",
           "default": "",
           "description": "Path to directory containing rspit files"

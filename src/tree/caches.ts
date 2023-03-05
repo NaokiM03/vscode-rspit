@@ -21,7 +21,7 @@ class CacheFileTreeItem extends vscode.TreeItem {
   getChildren() {
     const dirPath = vscode.workspace
       .getConfiguration("rspit")
-      .get("directoryPath") as string;
+      .get("dirPath") as string;
     const filePath = path.join(dirPath, this.name);
 
     return child_process
@@ -57,7 +57,7 @@ export class CachesTreeViewProvider
 
     const dirPath = vscode.workspace
       .getConfiguration("rspit")
-      .get("directoryPath") as string;
+      .get("dirPath") as string;
     const contents = fs.readdirSync(dirPath).map((content) => {
       const name = content;
       const contentPath = path.join(dirPath, content);

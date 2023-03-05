@@ -54,7 +54,7 @@ export const runPackageCommand = (globals: Globals) => {
 export const openCommand = () => {
   const dirPath = vscode.workspace
     .getConfiguration("rspit")
-    .get("filePath") as string;
+    .get("dirPath") as string;
   const filePath = path.join(dirPath, "rspit.rs");
   const fileUri = vscode.Uri.file(filePath);
 
@@ -67,7 +67,7 @@ export const openPackageCommand = (arg: {
 }) => {
   const dirPath = vscode.workspace
     .getConfiguration("rspit")
-    .get("filePath") as string;
+    .get("dirPath") as string;
   const filePath = path.join(dirPath, arg.fileName);
   const fileUri = vscode.Uri.file(filePath);
 
@@ -81,7 +81,7 @@ export const addPackageCommand = (globals: Globals) => {
   return (rspitFile: RspitFileTreeItem) => {
     const dirPath = vscode.workspace
       .getConfiguration("rspit")
-      .get("filePath") as string;
+      .get("dirPath") as string;
     const filePath = path.join(dirPath, rspitFile.name);
     child_process.execSync(`pit add ${filePath}`);
 
